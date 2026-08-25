@@ -52,7 +52,7 @@ protected:
 public:
 
 	/** Constructor */
-	ASample_MultiCharacter();	
+	ASample_MultiCharacter();
 
 protected:
 
@@ -92,5 +92,8 @@ public:
 
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+public :
+
 };
 
