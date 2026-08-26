@@ -12,6 +12,8 @@ class UCameraComponent;
 class UInputAction;
 struct FInputActionValue;
 
+class AInteractionActorBase;
+
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 /**
@@ -93,7 +95,19 @@ public:
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
+
 public :
+
+	// 상호작용할 액터는 서버 소유, 캐릭터는 클라이언트 소유이기 때문에
+	// Server에 RPC 전달은 클라이언트가 소유한 액터(캐릭터)에서 해야 됨
+	void TryInteract(AInteractionActorBase* TargetActor);
+
+protected :
+
+	// Server RPC: 서버에서 실행
+	// RPC는 접미사로 _Implementation 붙여야 함
+	UFUNCTION(Server, Reliable)
+	void Server_Interact(AInteractionActorBase* TargetActor);
 
 };
 

@@ -12,6 +12,8 @@
 #include "InputActionValue.h"
 #include "Sample_Multi.h"
 
+#include "Interaction/InteractionActorBase.h"
+
 ASample_MultiCharacter::ASample_MultiCharacter()
 {
 	// Set size for collision capsule
@@ -70,6 +72,10 @@ void ASample_MultiCharacter::SetupPlayerInputComponent(UInputComponent* PlayerIn
 	{
 		UE_LOG(LogSample_Multi, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
 	}
+
+	UE_LOG(LogTemp, Warning,
+		TEXT("MovementMode = %d"),
+		static_cast<int32>(GetCharacterMovement()->MovementMode));
 }
 
 void ASample_MultiCharacter::Move(const FInputActionValue& Value)
@@ -130,4 +136,25 @@ void ASample_MultiCharacter::DoJumpEnd()
 {
 	// signal the character to stop jumping
 	StopJumping();
+}
+
+void ASample_MultiCharacter::TryInteract(AInteractionActorBase* TargetActor)
+{
+	if (!TargetActor)
+		return;
+
+	// 서버에서 실행해야 하는 상호작용만 들어옴
+
+	Server_Interact(TargetActor);
+	
+}
+
+// RPC는 접미사로 _Implementation 붙여야 함
+void ASample_MultiCharacter::Server_Interact_Implementation(AInteractionActorBase* TargetActor)
+{
+	if (!IsValid(TargetActor))
+		return;
+
+	TargetActor->Interact(this);
+
 }
