@@ -13,6 +13,7 @@
 #include "Sample_Multi.h"
 
 #include "Interaction/InteractionActorBase.h"
+#include "Sample_MultiGameState.h"
 
 ASample_MultiCharacter::ASample_MultiCharacter()
 {
@@ -147,6 +148,15 @@ void ASample_MultiCharacter::TryInteract(AInteractionActorBase* TargetActor)
 
 	Server_Interact(TargetActor);
 	
+}
+
+// RPC는 접미사로 _Implementation 붙여야 함
+void ASample_MultiCharacter::Server_SetGlobalText_Implementation(const FString& NewText)
+{
+	ASample_MultiGameState* GS = GetWorld()->GetGameState<ASample_MultiGameState>();
+
+	if (GS)
+		GS->SetGlobalText(NewText);
 }
 
 // RPC는 접미사로 _Implementation 붙여야 함

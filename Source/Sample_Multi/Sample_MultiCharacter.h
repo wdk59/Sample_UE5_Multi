@@ -96,6 +96,10 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 
+
+
+
+
 public :
 
 	// 상호작용할 액터는 서버 소유, 캐릭터는 클라이언트 소유이기 때문에
@@ -108,6 +112,11 @@ protected :
 	// RPC는 접미사로 _Implementation 붙여야 함
 	UFUNCTION(Server, Reliable)
 	void Server_Interact(AInteractionActorBase* TargetActor);
+
+	// 버튼 클릭: Player (Client 소유)
+	// Text 소유: GameState (Server 소유)
+	UFUNCTION(Server, Reliable)
+	void Server_SetGlobalText(const FString& NewText);
 
 };
 

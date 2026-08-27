@@ -39,6 +39,6 @@ protected :
 
 	// RPC는 접미사로 _Implementation 붙여야 함
 	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_PlayVFX();
+	void Multicast_PlayVFX(const int32 PlayerID);
 	
 };

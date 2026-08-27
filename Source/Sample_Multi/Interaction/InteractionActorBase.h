@@ -7,9 +7,9 @@
 #include "InteractionActorBase.generated.h"
 
 class USphereComponent;
-class UStaticMeshComponent;
 class ASampleCharacter;
 class UNiagaraSystem;
+class UNiagaraComponent;
 class ASample_MultiCharacter;
 
 UCLASS()
@@ -27,7 +27,7 @@ protected:
 	TObjectPtr<USphereComponent> InteractionCollision;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TObjectPtr<UStaticMeshComponent> Mesh;
+	TObjectPtr<UNiagaraComponent> RootVFX;
 
 protected:
 	// Called when the game starts or when spawned
@@ -64,8 +64,11 @@ public :
 	}
 
 protected :
+	// Client에서 Server 소유 Actor를 통해 ServerRPC를 직접 호출할 수 없다는 걸 보여주기 위한 RPC
+	UFUNCTION(Server, Reliable)
+	void Server_Interact(ASample_MultiCharacter* InCharacter);
 
 	// 일반 함수: VFX 활성
-	void PlayVFX();
+	void PlayVFX(const int32 PlayerID);
 
 };

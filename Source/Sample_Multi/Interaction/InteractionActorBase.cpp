@@ -6,6 +6,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "NiagaraSystem.h"
+#include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Sample_MultiCharacter.h"
 
@@ -24,8 +25,9 @@ AInteractionActorBase::AInteractionActorBase()
 	InteractionCollision->OnComponentBeginOverlap.AddDynamic(this, &AInteractionActorBase::OnInteractionBeginOverlap);
 
 	// 상호작용 액터의 스태틱 메시
-	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	Mesh->SetupAttachment(GetRootComponent());
+	RootVFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("RootVFX"));
+	RootVFX->SetRelativeLocation(FVector(0.f, 0.f, -90.f));
+	RootVFX->SetupAttachment(GetRootComponent());
 
 }
 
@@ -58,6 +60,7 @@ void AInteractionActorBase::OnInteractionBeginOverlap(UPrimitiveComponent* Overl
 	if (RequiresServer())
 	{
 		Character->TryInteract(this);
+		Interact(Character);	// Client에서는 실행 안 됨
 	}
 	else
 	{
@@ -70,12 +73,23 @@ void AInteractionActorBase::Interact(ASample_MultiCharacter* InCharacter)
 	// 상속한 클래스에서 구현
 }
 
-void AInteractionActorBase::PlayVFX()
+// Client에서는 소유하지 않은 Actor를 통해 ServerRPC를 직접 호출하지 못한다는 걸 보여주기 위한 예제
+void AInteractionActorBase::Server_Interact_Implementation(ASample_MultiCharacter* InCharacter)
+{
+	if (!InCharacter)
+		return;
+
+	Interact(InCharacter);
+}
+
+void AInteractionActorBase::PlayVFX(const int32 PlayerID)
 {
 	if (!VFX)
 		return;
 
-	UE_LOG(LogTemp, Log, TEXT("VFX 팡"));
+	// PIE 인스턴스 식별 (독립형 게임에서는 알 수 없음)
+	const int32 PIEInstanceID = GetWorld()->GetPackage()->GetPIEInstanceID();
+	UE_LOG(LogTemp, Log, TEXT("겹친 Player %d, VFX 보일 Instance %d : VFX 팡"), PlayerID, PIEInstanceID);
+	
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), VFX, GetActorLocation());
 }
-
