@@ -32,6 +32,8 @@ public :
 
 	void SetGlobalText(const FString& NewText);
 
+	const FString& GetGlobalText() const { return GlobalText; }
+
 protected :
 	
 	// OnGlobalTextChanged 발동 함수

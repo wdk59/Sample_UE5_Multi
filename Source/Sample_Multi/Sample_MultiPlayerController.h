@@ -8,6 +8,7 @@
 
 class UInputMappingContext;
 class UUserWidget;
+class USample_MultiWidget;
 
 /**
  *  Basic PlayerController class for a third person game
@@ -48,5 +49,19 @@ protected:
 
 	/** Returns true if the player should use UMG touch controls */
 	bool ShouldUseTouchControls() const;
+
+	
+
+
+
+protected :
+	
+	// 생성할 Widget 클래스
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<USample_MultiWidget> Sample_MultiWidgetClass;
+
+	// 실제로 생성된 Widet 인스턴스
+	UPROPERTY(VisibleDefaultsOnly)
+	TObjectPtr<USample_MultiWidget> MainWidget;
 
 };

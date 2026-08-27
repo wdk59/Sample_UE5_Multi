@@ -9,6 +9,8 @@
 #include "Sample_Multi.h"
 #include "Widgets/Input/SVirtualJoystick.h"
 
+#include "UI/Sample_MultiWidget.h"
+
 void ASample_MultiPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -31,6 +33,20 @@ void ASample_MultiPlayerController::BeginPlay()
 		}
 
 	}
+
+
+
+
+
+	// IsLocalController(): 클라이언트가 소유한 자신의 PlayerController인가
+	if (!IsLocalController() || !Sample_MultiWidgetClass)
+		return;
+
+	MainWidget = CreateWidget<USample_MultiWidget>(this, Sample_MultiWidgetClass);
+
+	if (MainWidget)
+		MainWidget->AddToViewport();
+
 }
 
 void ASample_MultiPlayerController::SetupInputComponent()

@@ -13,6 +13,7 @@
 #include "Sample_Multi.h"
 
 #include "Interaction/InteractionActorBase.h"
+#include "GameFramework/PlayerState.h"
 #include "Sample_MultiGameState.h"
 
 ASample_MultiCharacter::ASample_MultiCharacter()
@@ -151,12 +152,22 @@ void ASample_MultiCharacter::TryInteract(AInteractionActorBase* TargetActor)
 }
 
 // RPC는 접미사로 _Implementation 붙여야 함
-void ASample_MultiCharacter::Server_SetGlobalText_Implementation(const FString& NewText)
+void ASample_MultiCharacter::Server_SetGlobalText_Implementation()
 {
-	ASample_MultiGameState* GS = GetWorld()->GetGameState<ASample_MultiGameState>();
+	APlayerState* PS = GetPlayerState();
 
-	if (GS)
-		GS->SetGlobalText(NewText);
+	if (!PS)
+		return;
+
+	// PlayerID 가져오기
+	const int32 PlayerID = PS->GetPlayerId();
+
+	// 
+	if (ASample_MultiGameState* GS = GetWorld()->GetGameState<ASample_MultiGameState>())
+	{
+		GS->SetGlobalText(FString::FromInt(PlayerID));
+	}
+
 }
 
 // RPC는 접미사로 _Implementation 붙여야 함

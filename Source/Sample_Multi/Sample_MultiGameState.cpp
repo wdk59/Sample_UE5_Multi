@@ -22,7 +22,7 @@ void ASample_MultiGameState::SetGlobalText(const FString& NewText)
 {
 	if (!HasAuthority())
 		return;
-
+	
 	GlobalText = NewText;
 
 	// 모든 Client UI 갱신
