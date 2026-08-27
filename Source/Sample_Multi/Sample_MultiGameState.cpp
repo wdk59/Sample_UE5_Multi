@@ -25,7 +25,7 @@ void ASample_MultiGameState::SetGlobalText(const FString& NewText)
 	
 	GlobalText = NewText;
 
-	// 모든 Client UI 갱신
+	// OnRep는 서버에서 자동 호출되지 않으므로 Listen Server의 로컬 UI를 위해 직접 호출한다.
 	OnRep_GlobalText();
 
 }

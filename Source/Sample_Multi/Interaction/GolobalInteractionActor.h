@@ -29,16 +29,17 @@ public :
 
 protected :
 	
-	// NetMulticast RPC: 서버가 클라이언트에게 실행하라고 전달
-	// 서버를 거치지 않고 클라이언트에서 호출될 경우에는 호출한 클라이언트에서만 수행
-	// - Server->NetMulticast->일반함수: 서버에서 수행 및 각 클라이언트에게 전달
-	// - Client->NetMulticast->일반함수: 호출한 클라이언트에서 수행
+	// NetMulticast RPC: 서버에서 실행되고, 이 Actor가 복제되며 네트워크 관련성이 있는 클라이언트에 전달된다.
+	// 클라이언트에서 직접 호출하면 서버나 다른 클라이언트로 전송되지 않고 호출한 로컬 인스턴스에서만 실행된다.
+	// - Server -> NetMulticast -> 일반 함수: 서버와 관련성 있는 클라이언트에서 실행
+	// - Client -> NetMulticast -> 일반 함수: 호출한 클라이언트의 로컬 인스턴스에서만 실행
 	
-	// InteractionActorGlobal은 Client가 소유하고 있지 않기 때문에 Server RPC의 입구로 쓰지 않음
-	// Server RPC는 Character가 담당
+	// 레벨 배치 Interaction Actor는 클라이언트 연결이 소유하지 않으므로 Server RPC 진입점으로 사용하지 않는다.
+	// 클라이언트가 소유한 Character가 Server RPC 진입점을 담당한다.
 
-	// RPC는 접미사로 _Implementation 붙여야 함
-	UFUNCTION(NetMulticast, Reliable)
+	// UFUNCTION으로 선언한 RPC의 C++ 구현 함수에는 _Implementation 접미사를 붙인다.
+	// 일회성 연출은 손실되어도 게임 상태가 깨지지 않으므로 Reliable 큐를 점유하지 않는다.
+	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_PlayVFX(const int32 PlayerID);
 	
 };

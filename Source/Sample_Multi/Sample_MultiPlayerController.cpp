@@ -38,7 +38,7 @@ void ASample_MultiPlayerController::BeginPlay()
 
 
 
-	// IsLocalController(): 클라이언트가 소유한 자신의 PlayerController인가
+	// UI는 각 플레이어의 로컬 화면에만 만든다. 서버의 원격 PlayerController에는 만들지 않는다.
 	if (!IsLocalController() || !Sample_MultiWidgetClass)
 		return;
 

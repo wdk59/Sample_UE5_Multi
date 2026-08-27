@@ -60,7 +60,7 @@ protected :
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<USample_MultiWidget> Sample_MultiWidgetClass;
 
-	// 실제로 생성된 Widet 인스턴스
+	// 실제로 생성된 Widget 인스턴스
 	UPROPERTY(VisibleDefaultsOnly)
 	TObjectPtr<USample_MultiWidget> MainWidget;
 

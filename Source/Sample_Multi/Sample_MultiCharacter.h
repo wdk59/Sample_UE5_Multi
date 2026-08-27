@@ -102,19 +102,17 @@ public:
 
 public :
 
-	// 상호작용할 액터는 서버 소유, 캐릭터는 클라이언트 소유이기 때문에
-	// Server에 RPC 전달은 클라이언트가 소유한 액터(캐릭터)에서 해야 됨
+	// 해당 클라이언트 연결이 소유한 Character를 Server RPC 진입점으로 사용한다.
+	// 클라이언트 연결이 소유하지 않는 레벨 배치 Actor에서는 Server RPC를 서버로 보낼 수 없다.
 	void TryInteract(AInteractionActorBase* TargetActor);
 
-	// 버튼 클릭: Player (Client 소유)
-	// Text 소유: GameState (Server 소유)
+	// 로컬 UI의 버튼 요청을 서버로 전달한다. 공유 텍스트의 실제 소유자는 GameState다.
 	UFUNCTION(Server, Reliable)
 	void Server_SetGlobalText();
 
 protected :
 
-	// Server RPC: 서버에서 실행
-	// RPC는 접미사로 _Implementation 붙여야 함
+	// 전역 상호작용 요청을 서버 권위 영역으로 전달한다.
 	UFUNCTION(Server, Reliable)
 	void Server_Interact(AInteractionActorBase* TargetActor);
 

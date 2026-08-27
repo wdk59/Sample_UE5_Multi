@@ -24,7 +24,7 @@ AInteractionActorBase::AInteractionActorBase()
 	// Overlap 델리게이트 바인딩
 	InteractionCollision->OnComponentBeginOverlap.AddDynamic(this, &AInteractionActorBase::OnInteractionBeginOverlap);
 
-	// 상호작용 액터의 스태틱 메시
+	// 상호작용 액터에 부착할 Niagara Component
 	RootVFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("RootVFX"));
 	RootVFX->SetRelativeLocation(FVector(0.f, 0.f, -90.f));
 	RootVFX->SetupAttachment(GetRootComponent());
@@ -56,11 +56,16 @@ void AInteractionActorBase::OnInteractionBeginOverlap(UPrimitiveComponent* Overl
 	if (!Character->IsLocallyControlled())
 		return;
 
-	// 서버와 클라이언트 양쪽에서 Overlap이 발생 가능하기 때문에 서버 사용 여부 분기
+	// 충돌이 활성화된 복제 Actor의 Overlap은 서버와 각 클라이언트에서 각각 발생할 수 있다.
+	// 로컬 효과는 즉시 실행하고, 전역 효과는 소유 중인 Character를 RPC 통로로 사용한다.
 	if (RequiresServer())
 	{
 		Character->TryInteract(this);
-		Interact(Character);	// Client에서는 실행 안 됨
+
+		// 소유권 학습용 비교 호출이다. 원격 클라이언트에서는 Authority 검사로 종료되지만,
+		// Listen Server 호스트에서는 Authority도 가지므로 중복 실행될 수 있다.
+		Server_Interact(Character);
+
 	}
 	else
 	{
@@ -73,7 +78,14 @@ void AInteractionActorBase::Interact(ASample_MultiCharacter* InCharacter)
 	// 상속한 클래스에서 구현
 }
 
-// Client에서는 소유하지 않은 Actor를 통해 ServerRPC를 직접 호출하지 못한다는 걸 보여주기 위한 예제
+bool AInteractionActorBase::CanInteract(const ASample_MultiCharacter* InCharacter) const
+{
+	return IsValid(InCharacter)
+		&& IsValid(InteractionCollision)
+		&& InteractionCollision->IsOverlappingActor(InCharacter);
+}
+
+// Server RPC 소유권 규칙을 비교하기 위한 예제다. 정상 상호작용 흐름에서는 사용하지 않는다.
 void AInteractionActorBase::Server_Interact_Implementation(ASample_MultiCharacter* InCharacter)
 {
 	if (!InCharacter)
@@ -87,7 +99,7 @@ void AInteractionActorBase::PlayVFX(const int32 PlayerID)
 	if (!VFX)
 		return;
 
-	// PIE 인스턴스 식별 (독립형 게임에서는 알 수 없음)
+	// PIE 창을 구분하기 위한 에디터 전용 값이다. 실제 플레이어 식별자로 사용하면 안 된다.
 	const int32 PIEInstanceID = GetWorld()->GetPackage()->GetPIEInstanceID();
 	UE_LOG(LogTemp, Log, TEXT("겹친 Player %d, VFX 보일 Instance %d : VFX 팡"), PlayerID, PIEInstanceID);
 	

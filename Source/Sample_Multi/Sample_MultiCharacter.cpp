@@ -140,18 +140,21 @@ void ASample_MultiCharacter::DoJumpEnd()
 	StopJumping();
 }
 
+
+
+
+
 void ASample_MultiCharacter::TryInteract(AInteractionActorBase* TargetActor)
 {
 	if (!TargetActor)
 		return;
 
-	// 서버에서 실행해야 하는 상호작용만 들어옴
-
+	// 이 Character는 호출 클라이언트 연결이 소유하므로 Server RPC를 서버로 보낼 수 있다.
 	Server_Interact(TargetActor);
 	
 }
 
-// RPC는 접미사로 _Implementation 붙여야 함
+// UFUNCTION(Server)의 실제 서버 실행부다.
 void ASample_MultiCharacter::Server_SetGlobalText_Implementation()
 {
 	APlayerState* PS = GetPlayerState();
@@ -159,10 +162,10 @@ void ASample_MultiCharacter::Server_SetGlobalText_Implementation()
 	if (!PS)
 		return;
 
-	// PlayerID 가져오기
+	// 클라이언트가 ID를 보내지 않고 서버가 이 Character의 PlayerState에서 ID를 읽는다.
 	const int32 PlayerID = PS->GetPlayerId();
 
-	// 
+	// GameState는 모든 플레이어가 관찰해야 하는 공유 상태를 보관한다.
 	if (ASample_MultiGameState* GS = GetWorld()->GetGameState<ASample_MultiGameState>())
 	{
 		GS->SetGlobalText(FString::FromInt(PlayerID));
@@ -170,11 +173,15 @@ void ASample_MultiCharacter::Server_SetGlobalText_Implementation()
 
 }
 
-// RPC는 접미사로 _Implementation 붙여야 함
+// 실제 프로젝트에서는 유효성뿐 아니라 거리와 상호작용 가능 상태도 서버에서 검증해야 한다.
 void ASample_MultiCharacter::Server_Interact_Implementation(AInteractionActorBase* TargetActor)
 {
-	if (!IsValid(TargetActor))
+	if (!IsValid(TargetActor) || !TargetActor->RequiresServer())
 		return;
+
+	// 클라이언트의 TargetActor 포인터를 그대로 신뢰하지 않고 서버 충돌 상태로 재검증한다.
+	/*if (!TargetActor->CanInteract(this))
+		return;*/
 
 	TargetActor->Interact(this);
 

@@ -44,7 +44,7 @@ void USample_MultiWidget::OnChangeTextButtonClicked()
 {
 	UE_LOG(LogTemp, Log, TEXT("Button Clicked"));
 
-	// Widget을 가지고 있는 Player Pawn을 ASample_MultiCharacter형으로 가져옴
+	// Widget은 복제되지 않으므로 소유 Pawn을 통해 Server RPC를 요청한다.
 	ASample_MultiCharacter* Character = GetOwningPlayerPawn<ASample_MultiCharacter>();
 	
 	if (!Character)
